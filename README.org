@@ -1,0 +1,11 @@
+#+TITLE: Emacs interface for sdcv
+
+* use straight.el
+  #+BEGIN_SRC elisp
+(use-package sdcv
+  :straight (:host github :repo "maxc01/sdcv")
+  :bind ([f5] . sdcv-at-point)
+  )
+  #+END_SRC
+
+
