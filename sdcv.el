@@ -42,8 +42,7 @@ for a string, offering the current word as a default."
         (if word
             (setq search-term word)
           (setq search-term
-                (read-from-minibuffer "Search word: " nil nil nil 'sdcv-history nil)))
-        ))
+                (read-from-minibuffer "Search word: " nil nil nil 'sdcv-history nil)))))
     (unless (equal (car sdcv-history) search-term)
       (push search-term sdcv-history))
     search-term))
@@ -53,19 +52,11 @@ for a string, offering the current word as a default."
   (interactive (list (sdcv--read-search-term)))
   (let* ((output (process-lines "sdcv" "-n" word))
          (ww-from (propertize (substring (nth 2 output) 3)
-                              'face '(:foreground "#994639" :weight extra-bold)
-                              ))
+                              'face '(:foreground "#994639" :weight extra-bold)))
          (phonetic (substring (nth 4 output) 1))
          (ww-to (nth 5 output))
-         (echo-message (concat ww-from " " phonetic " " ww-to))
-         )
-    (message "%s" echo-message)
-    )
-  )
+         (echo-message (concat ww-from " " phonetic " " ww-to)))
+    (message "%s" echo-message)))
 
 (provide 'sdcv)
 ;;; sdcv.el ends here
-
-
-
-
