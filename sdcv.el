@@ -45,22 +45,26 @@ for a string, offering the current word as a default."
             (setq search-term word)
           (setq search-term
                 (completing-read
-                 (propertize "Search word: " 'face '(bold default))
+                 (propertize "Search word: " 'face '(:weight extra-bold))
                  sdcv-history)))))
-    (if (< (length search-term) 20)
-        (puthash search-term t sdcv-history))
     search-term))
 
-(defun sdcv-at-point (word)
-  "Start a sdcv search for WORD."
+(defun sdcv-at-point (pattern)
+  "Start a sdcv search for PATTERN."
   (interactive (list (sdcv--read-search-term)))
-  (let* ((output (process-lines "sdcv" "-n" word))
-         (ww-from (propertize (substring (nth 2 output) 3)
-                              'face '(:foreground "#994639" :weight extra-bold)))
-         (phonetic (substring (nth 4 output) 1))
-         (ww-to (nth 5 output))
-         (echo-message (concat ww-from " " phonetic " " ww-to)))
-    (message "%s" echo-message)))
+  (setq echo-message
+        (ignore-error wrong-type-argument
+          (let* ((output (process-lines-ignore-status "sdcv" "-n" pattern))
+                 (word (propertize (substring (nth 2 output) 3)
+                                   'face '(:foreground "#994639" :weight extra-bold)))
+                 (phonetic (substring (nth 4 output) 1))
+                 (definition (nth 5 output)))
+            (concat word " " phonetic " " definition))))
+  (if echo-message
+      (progn
+        (puthash pattern t sdcv-history)
+        (message "%s" echo-message))
+    (message "Did not find a definition for: %s" (propertize pattern 'face '(:weight extra-bold)))))
 
 (provide 'sdcv)
 ;;; sdcv.el ends here
