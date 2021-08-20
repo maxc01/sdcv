@@ -1,5 +1,6 @@
 ;;; sdcv.el --- Emacs interface for sdcv             -*- lexical-binding: t; -*-
 
+;; Copyright (C) 2021  Xingchen Ma
 ;; Copyright (C) 2019  Xingchen Ma
 
 ;; Author: Xingchen Ma <maxc01@yahoo.com>
@@ -25,8 +26,9 @@
 ;;; Code:
 
 (defvar sdcv-history
-  nil
-  "A list of the previous search terms.")
+  (make-hash-table :test 'equal
+                   :size 100)
+  "A hash table of the previous search terms.")
 
 (defun sdcv--read-search-term ()
   "Read a search term from the minibuffer.
@@ -42,9 +44,11 @@ for a string, offering the current word as a default."
         (if word
             (setq search-term word)
           (setq search-term
-                (read-from-minibuffer "Search word: " nil nil nil 'sdcv-history nil)))))
-    (unless (equal (car sdcv-history) search-term)
-      (push search-term sdcv-history))
+                (completing-read
+                 (propertize "Search word: " 'face '(bold default))
+                 sdcv-history)))))
+    (if (< (length search-term) 20)
+        (puthash search-term t sdcv-history))
     search-term))
 
 (defun sdcv-at-point (word)
