@@ -1,10 +1,28 @@
 #+TITLE: Emacs interface for sdcv
 
-* use straight.el
-  #+BEGIN_SRC elisp
+* installation
+
+** manually
+
+First clone this repo to somewhere.
+
+#+begin_src shell
+cd ~/.emacs.d/lib
+git clone https://github.com/maxc01/sdcv
+#+end_src
+
+Then add to load-path in your ==init.el=
+#+begin_src elisp
+(use-package sdcv
+  :load-path "lib/sdcv"
+  :bind ("M-s d" . sdcv-at-point))
+#+end_src
+
+** use straight.el
+#+begin_src elisp
 (use-package sdcv
   :straight (:host github :repo "maxc01/sdcv")
-  :bind ([f5] . sdcv-at-point))
-  #+END_SRC
+  :bind ("M-s d" . sdcv-at-point))
+#+end_src
 
 
