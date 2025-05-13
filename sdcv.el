@@ -25,6 +25,10 @@
 
 ;;; Code:
 
+(defcustom dict-backend "sdcv"
+  :type '(choice (const :tag "command line sdcv" sdcv)
+                 (const :tag "apple dictionary" apple)))
+
 (defvar sdcv-history
   (make-hash-table :test 'equal
                    :size 100)
@@ -49,22 +53,32 @@ for a string, offering the current word as a default."
                  sdcv-history)))))
     search-term))
 
+(defun sdcv-backend (pattern)
+  (let ((echo-message (ignore-error wrong-type-argument
+                        (let* ((output (process-lines-ignore-status "sdcv" "-n" pattern))
+                               (word (propertize (substring (nth 2 output) 3)
+                                                 'face '(:foreground "#994639" :weight extra-bold)))
+                               (phonetic (substring (nth 4 output) 1))
+                               (definition (nth 5 output)))
+                          (concat word " " phonetic " " definition)))))
+    (if echo-message
+        (progn
+          (puthash pattern t sdcv-history)
+          (message "%s" echo-message))
+      (message "Did not find a definition for: %s" (propertize pattern 'face '(:weight extra-bold))))))
+
+(defun apple-backend (pattern)
+  (async-shell-command (format "open dict://%s" pattern)))
+
 (defun sdcv-at-point (pattern)
   "Start a sdcv search for PATTERN."
   (interactive (list (sdcv--read-search-term)))
-  (setq echo-message
-        (ignore-error wrong-type-argument
-          (let* ((output (process-lines-ignore-status "sdcv" "-n" pattern))
-                 (word (propertize (substring (nth 2 output) 3)
-                                   'face '(:foreground "#994639" :weight extra-bold)))
-                 (phonetic (substring (nth 4 output) 1))
-                 (definition (nth 5 output)))
-            (concat word " " phonetic " " definition))))
-  (if echo-message
-      (progn
-        (puthash pattern t sdcv-history)
-        (message "%s" echo-message))
-    (message "Did not find a definition for: %s" (propertize pattern 'face '(:weight extra-bold)))))
+  (cond ((eq dict-backend 'sdcv)
+         (sdcv-backend pattern))
+        ((eq dict-backend 'apple)
+         (apple-backend pattern))
+        (t
+         (message "Unknown backend")))
 
 (provide 'sdcv)
 ;;; sdcv.el ends here
