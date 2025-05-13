@@ -58,7 +58,7 @@ for a string, offering the current word as a default."
                  sdcv-history)))))
     search-term))
 
-(defun sdcv-backend (pattern)
+(defun backend-sdcv (pattern)
   (let ((echo-message (ignore-error wrong-type-argument
                         (let* ((output (process-lines-ignore-status "sdcv" "-n" pattern))
                                (word (propertize (substring (nth 2 output) 3)
@@ -72,16 +72,17 @@ for a string, offering the current word as a default."
           (message "%s" echo-message))
       (message "Did not find a definition for: %s" (propertize pattern 'face '(:weight extra-bold))))))
 
-(defun apple-backend (pattern)
+(defun backend-apple (pattern)
   (async-shell-command (format "open dict://%s" pattern)))
 
+;;;###autoload
 (defun sdcv-at-point (pattern)
   "Start a sdcv search for PATTERN."
   (interactive (list (sdcv--read-search-term)))
   (cond ((eq sdcv-dict-backend 'sdcv)
-         (sdcv-backend pattern))
+         (backend-sdcv pattern))
         ((eq sdcv-dict-backend 'apple)
-         (apple-backend pattern))
+         (backend-apple pattern))
         (t
          (message "Unknown backend"))))
 
