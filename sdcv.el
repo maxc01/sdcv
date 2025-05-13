@@ -25,9 +25,14 @@
 
 ;;; Code:
 
-(defcustom dict-backend "sdcv"
+(defcustom sdcv-dict-backend 'sdcv
+   "Specify which dictionary backend to use.
+Possible values are:
+- sdcv: Command line dictionary tool
+- apple: macOS built-in dictionary"
   :type '(choice (const :tag "command line sdcv" sdcv)
-                 (const :tag "apple dictionary" apple)))
+                 (const :tag "apple dictionary" apple))
+  :group 'sdcv)
 
 (defvar sdcv-history
   (make-hash-table :test 'equal
@@ -73,12 +78,12 @@ for a string, offering the current word as a default."
 (defun sdcv-at-point (pattern)
   "Start a sdcv search for PATTERN."
   (interactive (list (sdcv--read-search-term)))
-  (cond ((eq dict-backend 'sdcv)
+  (cond ((eq sdcv-dict-backend 'sdcv)
          (sdcv-backend pattern))
-        ((eq dict-backend 'apple)
+        ((eq sdcv-dict-backend 'apple)
          (apple-backend pattern))
         (t
-         (message "Unknown backend")))
+         (message "Unknown backend"))))
 
 (provide 'sdcv)
 ;;; sdcv.el ends here
