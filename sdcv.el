@@ -73,12 +73,14 @@ for a string, offering the current word as a default."
       (message "Did not find a definition for: %s" (propertize pattern 'face '(:weight extra-bold))))))
 
 (defun backend-apple (pattern)
-  (async-shell-command (format "open dict://%s" pattern)))
+  (with-temp-buffer
+    (async-shell-command (format "open dict://%s" pattern) (current-buffer))))
 
 ;;;###autoload
 (defun sdcv-at-point (pattern)
   "Start a sdcv search for PATTERN."
   (interactive (list (sdcv--read-search-term)))
+  (puthash pattern t sdcv-history)
   (cond ((eq sdcv-dict-backend 'sdcv)
          (backend-sdcv pattern))
         ((eq sdcv-dict-backend 'apple)
